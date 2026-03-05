@@ -1,0 +1,3 @@
+[submodule "CTS-Bench"]
+	path = CTS-Bench
+	url = https://github.com/BarsatKhadka/CTS-Bench.git
