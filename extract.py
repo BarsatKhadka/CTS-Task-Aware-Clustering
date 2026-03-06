@@ -1,5 +1,6 @@
 import re
 import numpy as np
+import pandas as pd
 
 
 def load_file_content(filepath):
@@ -158,6 +159,26 @@ def build_activity_cache(saif_text):
     
     return activity_cache
 
+def extract_timing_paths(timing_path_csv, node_to_idx):
+    df = pd.read_csv(timing_path_csv)
+    df = df[["launch_flop", "capture_flop"]].drop_duplicates()
+
+    valid = df[
+        df["launch_flop"].isin(node_to_idx) &
+        df["capture_flop"].isin(node_to_idx)
+    ]
+
+    skip_edges = np.array([
+        [node_to_idx[row.launch_flop], node_to_idx[row.capture_flop]]
+        for row in valid.itertuples()
+    ])
+
+    dropped = len(df) - len(valid)
+    print(f"Unique pairs: {len(valid)}, dropped: {dropped}")
+    print(f"Skip edges shape: {skip_edges.shape}")
+
+    return skip_edges
+
 
 # ============================================================
 # Main Extraction Function
@@ -165,7 +186,7 @@ def build_activity_cache(saif_text):
 
 OUTPUT_PINS = {'X', 'Y', 'Q', 'Q_N'}
 
-def extract_graph(def_path, saif_path, clock_port="clk"):
+def extract_graph(def_path, saif_path, timing_path_csv, clock_port="clk"):
     """
     One-shot extraction of everything needed from a placement.
     Returns nodes, directed edges, undirected edges, and flip-flop indices.
@@ -282,6 +303,7 @@ def extract_graph(def_path, saif_path, clock_port="clk"):
     directed = np.array(list(directed_set))
     reverse = np.stack([directed[:, 1], directed[:, 0]], axis=1)
     undirected = np.concatenate([directed, reverse], axis=0)
+    skip_edges = extract_timing_paths(timing_path_csv, node_to_idx)
     
     # ---- 6. Compute fan-in / fan-out ----
     n = len(nodes)
@@ -313,6 +335,7 @@ def extract_graph(def_path, saif_path, clock_port="clk"):
         'directed_edges': directed,
         'undirected_edges': undirected,
         'flop_indices': flop_indices,
+        'skip_edges': skip_edges
     }
 
 
@@ -320,11 +343,12 @@ def extract_graph(def_path, saif_path, clock_port="clk"):
 # Run it
 # ============================================================
 
-file_name = "aes_run_20260305_181833"
-def_path = f"./CTS-Bench/runs/{file_name}/11-openroad-detailedplacement/aes.def"
-saif_path = f"./CTS-Bench/runs/{file_name}/aes.saif"
+# file_name = "aes_run_20260305_181833"
+# def_path = f"./CTS-Bench/runs/{file_name}/11-openroad-detailedplacement/aes.def"
+# saif_path = f"./CTS-Bench/runs/{file_name}/aes.saif"
+# timing_path_csv = f"./CTS-Bench/runs/{file_name}/timing_paths.csv"
 
-graph = extract_graph(def_path, saif_path, clock_port="clk")
+# graph = extract_graph(def_path, saif_path, clock_port="clk")
 
 # nodes = graph['nodes']
 # directed = graph['directed_edges']
