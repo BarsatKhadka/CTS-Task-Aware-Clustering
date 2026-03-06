@@ -186,7 +186,7 @@ def extract_timing_paths(timing_path_csv, node_to_idx):
 
 OUTPUT_PINS = {'X', 'Y', 'Q', 'Q_N'}
 
-def extract_graph(def_path, saif_path, timing_path_csv, clock_port="clk"):
+def extract_graph(def_path, saif_path, clock_port="clk"):
     """
     One-shot extraction of everything needed from a placement.
     Returns nodes, directed edges, undirected edges, and flip-flop indices.
