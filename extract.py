@@ -186,7 +186,7 @@ def extract_timing_paths(timing_path_csv, node_to_idx):
 
 OUTPUT_PINS = {'X', 'Y', 'Q', 'Q_N'}
 
-def extract_graph(def_path, saif_path, clock_port="clk"):
+def extract_graph(def_path, saif_path, timing_path_csv,  clock_port="clk"):
     """
     One-shot extraction of everything needed from a placement.
     Returns nodes, directed edges, undirected edges, and flip-flop indices.
@@ -267,6 +267,7 @@ def extract_graph(def_path, saif_path, clock_port="clk"):
             "sum_toggle_count": saif_d["sum_toggle_count"],
             "signal_prob": saif_d["signal_prob"],
             "non_zero_count": saif_d["non_zero_count"],
+            
         })
     
     # ---- 4. Build node index mapping ----
@@ -335,7 +336,8 @@ def extract_graph(def_path, saif_path, clock_port="clk"):
         'directed_edges': directed,
         'undirected_edges': undirected,
         'flop_indices': flop_indices,
-        'skip_edges': skip_edges
+        'skip_edges': skip_edges,
+        'node_to_idx': node_to_idx,
     }
 
 
