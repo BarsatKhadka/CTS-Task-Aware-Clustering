@@ -90,3 +90,26 @@ def build_X_hop_mask(n_nodes, undirected_edges, hop_mask_len=3):
     print(f"Mask created! {omega_coo.nnz:,} total connections allowed.")
     return omega_coo.row, omega_coo.col
 
+#compressed graph
+def get_compressed_graph(X, C, A_skip_csr):
+    """
+    X: [N, feature_dim] 
+    C: [N, current_k] (Already sliced and gumbel-softmaxed)
+    A_skip_csr: [N, N] sparse matrix
+    """
+    with torch.no_grad():
+        # Optional: You can use the hard assignments here if you want a strictly pruned graph
+        # But using the soft C keeps it fully differentiable for end-to-end training
+        pass
+
+    # 1. Supernode Features (X_tilde) -> [current_k, feature_dim]
+    # Normalize C so we average the features, rather than summing them
+    C_norm = C / (C.sum(dim=0, keepdim=True) + 1e-8)
+    X_tilde = torch.matmul(C_norm.t(), X)
+    
+    # 2. Supernode Adjacency (A_tilde) -> current_k, current_k
+    # Project the N x N sparse connections down to current_k x current_k
+    inter = torch.sparse.mm(A_skip_csr, C)
+    A_tilde_skip = torch.matmul(C.t(), inter)
+    
+    return X_tilde, A_tilde_skip 
