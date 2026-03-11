@@ -92,63 +92,48 @@ def build_X_hop_mask(n_nodes, undirected_edges, hop_mask_len=3):
     return omega_coo.row, omega_coo.col
 
 
-def get_x_combined_cluster(X, C):
+def get_compressed_graph(X, C, A_skip_csr, A_wire_csr):
     """
-    X: [N, d] Raw node features based on your dictionary order.
-    C: [N, k] Soft assignment matrix (probability assignment of node)[cite: 55, 109].
+    Consolidated function to build the compressed graph with Section 6 traits.
+    
+    Args:
+        X: [N, d] Raw node features (Coordinates at 0:2, Cell Area at 2).
+        C: [N, k] Soft assignment matrix[cite: 104, 109].
+        A_skip_csr: [N, N] Sparse timing highways[cite: 140, 141].
+        A_wire_csr: [N, N] Sparse physical routing grid[cite: 174].
     """
-    # 1. Base Supernode Features (Section 11.1) 
-    # Each row is a weighted aggregation of nodes assigned to that cluster
+    # 1. Column Normalization for Weighted Averaging
+    # collapsible Node dimension N into Cluster dimension K [cite: 171, 175]
     cluster_sums = C.sum(dim=0, keepdim=True) + 1e-8
     C_norm = C / cluster_sums
-    X_tilde_base = torch.matmul(C_norm.t(), X) 
     
-    # 2. Extract Physical Data for Section 6 
-    coords = X[:, 0:2]     # Indices 0 and 1: (x, y) 
-    cell_areas = X[:, 2:3]  # Index 2: cell_area 
+    # 2. Base Supernode Features (Section 11.1) 
+    X_tilde_base = torch.matmul(C_norm.t(), X) 
 
-    # 3. Cluster 'Count' 
-    # Weighted sum of cell areas within a cluster 
-    counts = torch.matmul(C.t(), cell_areas) # [k, 1]
+    # 3. Cluster physical traits (Section 6) [cite: 54]
+    # Extract raw data from indices: 0:2=Coords, 2=Cell Area [cite: 27, 30]
+    coords = X[:, 0:2]    
+    cell_areas = X[:, 2:3]
 
-    # 4. Cluster 'Spread' (Section 6) 
-    # Calculated from distance of different nodes within a cluster 
-    # We use weighted variance: E[x^2] - (E[x])^2
+    # Cluster 'Count': Weighted sum of cell areas [cite: 56]
+    counts = torch.matmul(C.t(), cell_areas) 
+
+    # Cluster 'Spread': Geometric standard deviation (Weighted Variance) [cite: 56]
     centroids = torch.matmul(C_norm.t(), coords) 
     node_sq = torch.sum(coords**2, dim=1, keepdim=True)
     exp_sq = torch.matmul(C_norm.t(), node_sq) 
     mu_sq = torch.sum(centroids**2, dim=1, keepdim=True)
-    
-    # Square root gives the geometric standard deviation of the cluster
-    spreads = torch.sqrt(F.relu(exp_sq - mu_sq) + 1e-8) # [k, 1]
+    spreads = torch.sqrt(F.relu(exp_sq - mu_sq) + 1e-8)
 
-    # 5. Concatenate (Weighted averages + Section 6 additions) 
-    X_combined_cluster = torch.cat([X_tilde_base, counts, spreads], dim=-1)
-    
-    return X_combined_cluster
+    # 4. Final X_tilde: Aggregated Features + Section 6 additions [cite: 171, 172]
+    X_tilde = torch.cat([X_tilde_base, counts, spreads], dim=-1)
 
-#compressed graph
-def get_compressed_graph(X, C, A_skip_csr, A_wire_csr):
-    """
-    X: [N, feature_dim] 
-    C: [N, current_k] (Soft assignments)
-    A_skip_csr: [N, N] sparse matrix (Virtual timing highways)
-    A_wire_csr: [N, N] sparse matrix (1-hop physical routing grid)
-    """
-    with torch.no_grad():
-        pass # Optional hard assignment hook
-
-    # 1. Supernode Features (X_tilde) -> [current_k, feature_dim]
-    C_norm = C / (C.sum(dim=0, keepdim=True) + 1e-8)
-    X_tilde = torch.matmul(C_norm.t(), X)
-    
-    # 2. Compressed Skip-Connection Adjacency (A_tilde_skip) -> [current_k, current_k]
-    # As defined in Section 11.3: A_tilde_skip = C^T * A_skip * C
+    # 5. Compressed Adjacencies (Section 11.2, 11.3)
+    # Timing Highways [cite: 179]
     inter_skip = torch.sparse.mm(A_skip_csr, C)
     A_tilde_skip = torch.matmul(C.t(), inter_skip)
     
-    # 3. Compressed Physical Routing Adjacency (A_tilde_wire) -> [current_k, current_k]
-    # As defined in Section 11.2: A_tilde_wire = C^T * A_wire * C
+    # Physical Routing [cite: 175]
     inter_wire = torch.sparse.mm(A_wire_csr, C)
     A_tilde_wire = torch.matmul(C.t(), inter_wire)
     
