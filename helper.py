@@ -1,6 +1,7 @@
 import numpy as np 
 import torch
 import scipy.sparse as sp
+import torch.nn.functional as F
 
 
 
@@ -89,6 +90,42 @@ def build_X_hop_mask(n_nodes, undirected_edges, hop_mask_len=3):
     
     print(f"Mask created! {omega_coo.nnz:,} total connections allowed.")
     return omega_coo.row, omega_coo.col
+
+
+def get_x_combined_cluster(X, C):
+    """
+    X: [N, d] Raw node features based on your dictionary order.
+    C: [N, k] Soft assignment matrix (probability assignment of node)[cite: 55, 109].
+    """
+    # 1. Base Supernode Features (Section 11.1) 
+    # Each row is a weighted aggregation of nodes assigned to that cluster
+    cluster_sums = C.sum(dim=0, keepdim=True) + 1e-8
+    C_norm = C / cluster_sums
+    X_tilde_base = torch.matmul(C_norm.t(), X) 
+    
+    # 2. Extract Physical Data for Section 6 
+    coords = X[:, 0:2]     # Indices 0 and 1: (x, y) 
+    cell_areas = X[:, 2:3]  # Index 2: cell_area 
+
+    # 3. Cluster 'Count' 
+    # Weighted sum of cell areas within a cluster 
+    counts = torch.matmul(C.t(), cell_areas) # [k, 1]
+
+    # 4. Cluster 'Spread' (Section 6) 
+    # Calculated from distance of different nodes within a cluster 
+    # We use weighted variance: E[x^2] - (E[x])^2
+    centroids = torch.matmul(C_norm.t(), coords) 
+    node_sq = torch.sum(coords**2, dim=1, keepdim=True)
+    exp_sq = torch.matmul(C_norm.t(), node_sq) 
+    mu_sq = torch.sum(centroids**2, dim=1, keepdim=True)
+    
+    # Square root gives the geometric standard deviation of the cluster
+    spreads = torch.sqrt(F.relu(exp_sq - mu_sq) + 1e-8) # [k, 1]
+
+    # 5. Concatenate (Weighted averages + Section 6 additions) 
+    X_combined_cluster = torch.cat([X_tilde_base, counts, spreads], dim=-1)
+    
+    return X_combined_cluster
 
 #compressed graph
 def get_compressed_graph(X, C, A_skip_csr, A_wire_csr):
