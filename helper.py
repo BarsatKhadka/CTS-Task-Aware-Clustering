@@ -116,3 +116,31 @@ def get_compressed_graph(X, C, A_skip_csr, A_wire_csr):
     A_tilde_wire = torch.matmul(C.t(), inter_wire)
     
     return X_tilde, A_tilde_skip, A_tilde_wire
+
+
+def relative_masking(A_dense, threshold=0.10):
+    with torch.no_grad():
+        # 1. Clone and zero-out the diagonal to find true EXTERNAL peak
+        A_no_diag = A_dense.clone()
+        A_no_diag.fill_diagonal_(0.0)
+        
+        # 2. Find the peak OUTGOING connection
+        max_vals, _ = A_no_diag.max(dim=1, keepdim=True)
+        row_thresholds = max_vals * threshold
+        
+        # 3. Create mask (keep external wires above threshold)
+        mask = (A_dense >= row_thresholds) & (A_dense > 1e-9)
+        
+        # 4. Force-keep the self-loops (the diagonal)
+        eye = torch.eye(A_dense.size(0), device=A_dense.device, dtype=torch.bool)
+        mask = mask | eye
+        
+    # 5. Apply the mask (Preserves gradients on surviving weights)
+    A_sparse = A_dense * mask.float()
+    
+    # 6. Extract into PyTorch Geometric format immediately
+    row_idx, col_idx = (A_sparse > 0).nonzero(as_tuple=True)
+    edge_index = torch.stack([row_idx, col_idx], dim=0)  # Shape: [2, num_edges]
+    edge_weight = A_sparse[row_idx, col_idx]             # Shape: [num_edges]
+    
+    return edge_index, edge_weight
