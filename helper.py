@@ -194,17 +194,17 @@ def load_cts_parameters(csv_path, placement_id, device):
     for _, row in run_df.iterrows():
         # 1. Extract the CTS knobs (The inputs for the MLP heads)
         knobs = torch.tensor([
-            row['cts_max_wire'],
-            row['cts_buf_dist'],
-            row['cts_cluster_size'],
-            row['cts_cluster_dia']
+            row['z_cts_buf_dist'],
+            row['z_cts_cluster_size'],
+            row['z_cts_cluster_dia'], 
+            row['z_cts_max_wire']
         ], dtype=torch.float32).to(device)
         
         # 2. Extract the target metrics (The ground truth for the loss function)
         targets = {
-            'skew': torch.tensor([row['skew_setup']], dtype=torch.float32).to(device), 
-            'power': torch.tensor([row['power_total']], dtype=torch.float32).to(device),
-            'wl': torch.tensor([row['wirelength']], dtype=torch.float32).to(device)
+            'skew': torch.tensor([row['z_skew_setup']], dtype=torch.float32).to(device), 
+            'power': torch.tensor([row['z_power_total']], dtype=torch.float32).to(device),
+            'wl': torch.tensor([row['z_wirelength']], dtype=torch.float32).to(device)
         }
         
         cts_runs.append({'knobs': knobs, 'targets': targets})
