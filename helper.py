@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import scipy.sparse as sp
 import torch.nn.functional as F
+import pandas as pd
 
 
 
@@ -166,3 +167,46 @@ def relative_masking(A_dense, threshold=0.10):
     edge_weight = A_sparse[row_idx, col_idx]             # Shape: [num_edges]
     
     return edge_index, edge_weight
+
+    import pandas as pd
+import torch
+import os
+
+def load_cts_parameters(csv_path, placement_id, device):
+    """
+    Parses a design's CSV file to extract the CTS knobs and target metrics 
+    for a specific placement run.
+    """
+    if not os.path.exists(csv_path):
+        print(f"    -> WARNING: CTS configuration CSV not found at {csv_path}")
+        return []
+        
+    df = pd.read_csv(csv_path)
+    
+    # Filter for the specific placement run (e.g., picorv32_run_20260306_110145)
+    run_df = df[df['placement_id'] == placement_id]
+    
+    if run_df.empty:
+        print(f"    -> WARNING: No CTS configurations found for {placement_id} in CSV.")
+        return []
+        
+    cts_runs = []
+    for _, row in run_df.iterrows():
+        # 1. Extract the CTS knobs (The inputs for the MLP heads)
+        knobs = torch.tensor([
+            row['cts_max_wire'],
+            row['cts_buf_dist'],
+            row['cts_cluster_size'],
+            row['cts_cluster_dia']
+        ], dtype=torch.float32).to(device)
+        
+        # 2. Extract the target metrics (The ground truth for the loss function)
+        targets = {
+            'skew': torch.tensor([row['skew_setup']], dtype=torch.float32).to(device), 
+            'power': torch.tensor([row['power_total']], dtype=torch.float32).to(device),
+            'wl': torch.tensor([row['wirelength']], dtype=torch.float32).to(device)
+        }
+        
+        cts_runs.append({'knobs': knobs, 'targets': targets})
+        
+    return cts_runs
