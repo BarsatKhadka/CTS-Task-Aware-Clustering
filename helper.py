@@ -114,7 +114,7 @@ def get_compressed_graph(X, C, A_skip_csr, A_wire_csr):
     # 3. Cluster physical traits (Section 6) [cite: 54]
     # Extract raw data from indices: 0:2=Coords, 2=Cell Area [cite: 27, 30]
     coords = X[:, 0:2]    
-    cell_areas = X[:, 2:3]
+    cell_areas = X[:, 6:7]
 
     # Cluster 'Count': Weighted sum of cell areas [cite: 56]
     counts = torch.matmul(C.t(), cell_areas) 
@@ -168,7 +168,7 @@ def relative_masking(A_dense, threshold=0.10):
     
     return edge_index, edge_weight
 
-    import pandas as pd
+import pandas as pd
 import torch
 import os
 
