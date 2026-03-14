@@ -120,6 +120,7 @@ def get_compressed_graph(X, C, A_skip_csr, A_wire_csr, raw_areas):
     # Cluster 'Count': Weighted sum of TRUE physical cell areas 
     # This matrix multiplies [K, N] by [N, 1] to get exactly [K, 1]
     counts = torch.matmul(C.t(), raw_areas) 
+    counts_norm = (counts - counts.mean()) / (counts.std() + 1e-8)
 
     # Cluster 'Spread': Geometric standard deviation (Weighted Variance) 
     centroids = torch.matmul(C_norm.t(), coords) 
@@ -129,7 +130,7 @@ def get_compressed_graph(X, C, A_skip_csr, A_wire_csr, raw_areas):
     spreads = torch.sqrt(F.relu(exp_sq - mu_sq) + 1e-8)
 
     # 4. Final X_tilde: Aggregated Features + Section 6 additions 
-    X_tilde = torch.cat([X_tilde_base, counts, spreads], dim=-1)
+    X_tilde = torch.cat([X_tilde_base, counts_norm, spreads], dim=-1)
 
     # 5. Compressed Adjacencies (Section 11.2, 11.3)
     # Timing Highways 
