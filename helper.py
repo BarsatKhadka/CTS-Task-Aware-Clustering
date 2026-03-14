@@ -58,7 +58,7 @@ def normalize_features(nodes, die_x_min, die_y_min, die_x_max, die_y_max):
 
 
 
-def build_X_hop_mask(n_nodes, undirected_edges, hop_mask_len=3):
+def build_X_hop_mask(n_nodes, undirected_edges, hop_mask_len=2):
     """
     Creates the Omega mask. 
     If Omega[i, j] = 1, Node i is allowed to 'use' Node j for reconstruction.
@@ -93,48 +93,50 @@ def build_X_hop_mask(n_nodes, undirected_edges, hop_mask_len=3):
     return omega_coo.row, omega_coo.col
 
 
-def get_compressed_graph(X, C, A_skip_csr, A_wire_csr):
+import torch
+import torch.nn.functional as F
+
+def get_compressed_graph(X, C, A_skip_csr, A_wire_csr, raw_areas):
     """
     Consolidated function to build the compressed graph with Section 6 traits.
     
     Args:
-        X: [N, d] Raw node features (Coordinates at 0:2, Cell Area at 2).
-        C: [N, k] Soft assignment matrix[cite: 104, 109].
-        A_skip_csr: [N, N] Sparse timing highways[cite: 140, 141].
-        A_wire_csr: [N, N] Sparse physical routing grid[cite: 174].
+        X: [N, d] Raw node features (Coordinates at 0:2).
+        C: [N, k] Soft assignment matrix.
+        A_skip_csr: [N, N] Sparse timing highways.
+        A_wire_csr: [N, N] Sparse physical routing grid.
+        raw_areas: [N, 1] The unnormalized, true physical area of each node.
     """
     # 1. Column Normalization for Weighted Averaging
-    # collapsible Node dimension N into Cluster dimension K [cite: 171, 175]
     cluster_sums = C.sum(dim=0, keepdim=True) + 1e-8
     C_norm = C / cluster_sums
     
     # 2. Base Supernode Features (Section 11.1) 
     X_tilde_base = torch.matmul(C_norm.t(), X) 
 
-    # 3. Cluster physical traits (Section 6) [cite: 54]
-    # Extract raw data from indices: 0:2=Coords, 2=Cell Area [cite: 27, 30]
+    # 3. Cluster physical traits (Section 6) 
     coords = X[:, 0:2]    
-    cell_areas = X[:, 6:7]
 
-    # Cluster 'Count': Weighted sum of cell areas [cite: 56]
-    counts = torch.matmul(C.t(), cell_areas) 
+    # Cluster 'Count': Weighted sum of TRUE physical cell areas 
+    # This matrix multiplies [K, N] by [N, 1] to get exactly [K, 1]
+    counts = torch.matmul(C.t(), raw_areas) 
 
-    # Cluster 'Spread': Geometric standard deviation (Weighted Variance) [cite: 56]
+    # Cluster 'Spread': Geometric standard deviation (Weighted Variance) 
     centroids = torch.matmul(C_norm.t(), coords) 
     node_sq = torch.sum(coords**2, dim=1, keepdim=True)
     exp_sq = torch.matmul(C_norm.t(), node_sq) 
     mu_sq = torch.sum(centroids**2, dim=1, keepdim=True)
     spreads = torch.sqrt(F.relu(exp_sq - mu_sq) + 1e-8)
 
-    # 4. Final X_tilde: Aggregated Features + Section 6 additions [cite: 171, 172]
+    # 4. Final X_tilde: Aggregated Features + Section 6 additions 
     X_tilde = torch.cat([X_tilde_base, counts, spreads], dim=-1)
 
     # 5. Compressed Adjacencies (Section 11.2, 11.3)
-    # Timing Highways [cite: 179]
+    # Timing Highways 
     inter_skip = torch.sparse.mm(A_skip_csr, C)
     A_tilde_skip = torch.matmul(C.t(), inter_skip)
     
-    # Physical Routing [cite: 175]
+    # Physical Routing 
     inter_wire = torch.sparse.mm(A_wire_csr, C)
     A_tilde_wire = torch.matmul(C.t(), inter_wire)
     
