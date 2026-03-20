@@ -1,0 +1,26 @@
+======================================================================
+Skew Grid Simulation: Clock Tree Centroid Spread as Skew Proxy
+======================================================================
+
+[1s] Computing grid-based cluster centroid features...
+  Missing: 0/5390, computed: 5390/5390
+
+[33s] Correlations with z_skew and z_power:
+  grid_std_dist: rho_sk=-0.0160  rho_pw=-0.0178  rho_wl=-0.0211
+  grid_range_dist: rho_sk=-0.0073  rho_pw=0.0361  rho_wl=0.0266
+  grid_max_dist: rho_sk=-0.0101  rho_pw=0.0182  rho_wl=0.0112
+  grid_p90_dist: rho_sk=-0.0127  rho_pw=-0.0034  rho_wl=-0.0091
+  grid_n_clust: rho_sk=0.0363  rho_pw=0.4164  rho_wl=0.3510
+  grid_gini: rho_sk=-0.0162  rho_pw=-0.0398  rho_wl=-0.0387
+
+[35s] Correlations of z_within versions with z_skew:
+  z_grid_std: rho_sk=-0.0221  rho_pw=-0.3671
+  z_grid_range: rho_sk=0.0674  rho_pw=0.6368
+  z_grid_max: rho_sk=0.0783  rho_pw=0.5360
+  z_grid_p90: rho_sk=0.0224  rho_pw=-0.1261
+  z_grid_nc: rho_sk=0.0926  rho_pw=0.9337
+  z_grid_gini: rho_sk=-0.0215  rho_pw=-0.2145
+
+[35s] === SKEW RANK MAE LODO (prior best ~0.237) ===
+  X29T LGB (baseline): 0.2483/0.2401/0.2783/0.2815  mean=0.2621
+  Grid-only LGB: 0.3662/0.3629/0.3705/0.3568  mean=0.3641

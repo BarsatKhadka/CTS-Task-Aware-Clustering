@@ -17,7 +17,7 @@ def normalize_features(nodes, die_x_min, die_y_min, die_x_max, die_y_max):
     for n in nodes:
         row = [
             (n['x'] - die_x_min) / die_w,
-            (n['y'] - die_y_min) / die_h,
+            (n['y'] - die_y_min) / die_h, 
             n['dist_to_boundaries'][0] / die_w,
             n['dist_to_boundaries'][1] / die_w,
             n['dist_to_boundaries'][2] / die_h,
@@ -170,6 +170,19 @@ def relative_masking(A_dense, threshold=0.10):
     edge_weight = A_sparse[row_idx, col_idx]             # Shape: [num_edges]
     
     return edge_index, edge_weight
+
+def relative_masking_dense(A_dense, threshold=0.10):
+    """Same as relative_masking but returns sparse dense matrix 
+    instead of edge_index format. Preserves gradients."""
+    with torch.no_grad():
+        A_no_diag = A_dense.clone()
+        A_no_diag.fill_diagonal_(0.0)
+        max_vals, _ = A_no_diag.max(dim=1, keepdim=True)
+        row_thresholds = max_vals * threshold
+        mask = (A_dense >= row_thresholds) & (A_dense > 1e-9)
+        eye  = torch.eye(A_dense.size(0), device=A_dense.device, dtype=torch.bool)
+        mask = mask | eye
+    return A_dense * mask.float()   # gradients preserved, sparse values
 
 import pandas as pd
 import torch

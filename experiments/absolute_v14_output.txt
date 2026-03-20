@@ -1,0 +1,23 @@
+======================================================================
+Absolute v14: Zero-shot Physics-Formula + Simulation
+======================================================================
+[0s] Loaded: 5390 rows
+  power range: [0.011521, 0.102344] W
+  WL range: [220473, 2029240] µm
+[0s] Building physics features...
+[4s] X_abs shape: (5390, 27)
+  n_ff range: [1597, 10546]
+  HPWL range: [670, 2219] µm
+
+  Power ratio range: [-9.457, -7.112]
+  WL ratio range: [5.592, 7.146]
+  WL/HPWL mean: 533.771 (expect ~1.2)
+  aes: pw_ratio=[-8.87,-7.16]  wl_ratio=[6.25,7.06]
+  ethmac: pw_ratio=[-9.46,-8.20]  wl_ratio=[6.22,7.15]
+  picorv32: pw_ratio=[-8.44,-7.11]  wl_ratio=[5.59,6.19]
+  sha256: pw_ratio=[-9.37,-8.08]  wl_ratio=[5.75,6.26]
+
+[4s] === POWER ABSOLUTE (target: log(power/n_buf)) ===
+  Prior best: 37.8% MAPE
+  LGB_300 X_abs: 57.9%/123.0%/63.9%/185.2%  mean=107.5% 
+  XGB_300 X_abs: 58.2%/166.5%/64.4%/187.4%  mean=119.1% 

@@ -1,0 +1,66 @@
+[0.1s] n=5390, designs=['aes', 'ethmac', 'picorv32', 'sha256']
+[0.1s] Building features...
+  X_pw=(5390, 76), X_wl=(5390, 84), X_sk=(5390, 63)
+
+[0.7s] === PHASE 1: Refine WL model (blend alpha + LGB capacity) ===
+  Blend alpha sweep (LGB300 + Ridge1000):
+    α=0.0  mean=8.9%  aes=7.9% eth=14.0% pico=4.7% sha=8.9% ← best
+    α=0.2  mean=7.4%  aes=11.2% eth=9.0% pico=4.4% sha=5.1% ← best
+    α=0.3  mean=7.0%  aes=12.8% eth=7.2% pico=4.3% sha=3.7% ← best
+    α=0.4  mean=7.0%  aes=14.4% eth=6.4% pico=4.2% sha=3.1%
+    α=0.5  mean=7.7%  aes=16.0% eth=6.7% pico=4.2% sha=3.7%
+    α=0.7  mean=10.2%  aes=19.1% eth=10.4% pico=4.4% sha=6.8%
+    α=1.0  mean=15.6%  aes=23.5% eth=20.0% pico=5.1% sha=13.7%
+
+  LGB capacity sweep (α=0.3):
+    ne=300 nl=31  mean=7.0%  aes=12.8%
+    ne=500 nl=31  mean=7.0%  aes=12.8% ← best
+    ne=300 nl=63  mean=7.3%  aes=12.8%
+    ne=500 nl=63  mean=7.3%  aes=12.8%
+    ne=700 nl=31  mean=7.0%  aes=12.8% ← best
+    ne=500 nl=127  mean=7.5%  aes=12.9%
+
+  Best WL config: α=0.3  LGB={'n_estimators': 700, 'num_leaves': 31, 'learning_rate': 0.03, 'min_child_samples': 10, 'verbose': -1, 'n_jobs': 1, 'random_state': 42}  → 7.0%
+
+[271.8s] === PHASE 2: Refine Skew model ===
+  Skew LGB sweep:
+    ne=300 nl=31 lr=0.03  MAE=0.0738 ← best
+    ne=500 nl=31 lr=0.03  MAE=0.0741
+    ne=300 nl=63 lr=0.03  MAE=0.0755
+    ne=500 nl=63 lr=0.02  MAE=0.0754
+    ne=700 nl=31 lr=0.02  MAE=0.0746
+
+  Best skew config: {'n_estimators': 300, 'num_leaves': 31, 'learning_rate': 0.03, 'min_child_samples': 10, 'verbose': -1, 'n_jobs': 1, 'random_state': 42}  → MAE=0.0738
+
+[346.9s] === PHASE 3: Verify final config (full LODO) ===
+
+      Design |   Power |      WL |     Skew
+  -----------+---------+---------+---------
+         aes |   36.6% |   12.8% |  0.0859
+      ethmac |   12.3% |    7.2% |  0.0787
+    picorv32 |   30.1% |    4.3% |  0.0631
+      sha256 |   48.9% |    3.7% |  0.0675
+        Mean |   32.0% |    7.0% |  0.0738
+
+[389.9s] === PHASE 4: Train on ALL data + save ===
+  [392.0s] Power model trained (train R²=0.9983)
+  [399.7s] WL model trained (LGB R²=1.0000)
+  [402.4s] Skew model trained (LGB R²=0.6716)
+
+  Saved → /home/rain/CTS-Task-Aware-Clustering/synthesis_best/saved_models/cts_predictor.pkl
+  Size: 3.7 MB
+
+======================================================================
+FINAL SAVED MODEL PERFORMANCE (LODO zero-shot)
+======================================================================
+  Power: 32.0% MAPE (K=10 median → 9.8% ✓)
+  WL:    7.0% MAPE ✓
+  Skew:  0.0738 MAE ✓
+
+  Load with:
+    import pickle
+    with open('/home/rain/CTS-Task-Aware-Clustering/synthesis_best/saved_models/cts_predictor.pkl','rb') as f: m = pickle.load(f)
+    pred_log_pw = m['model_power'].predict(m['scaler_power'].transform(X_pw))
+    pred_pw = np.exp(pred_log_pw) * pw_norm  # pw_norm = n_ff * f_ghz * avg_ds
+
+[402.6s] DONE

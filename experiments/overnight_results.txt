@@ -1,0 +1,255 @@
+======================================================================
+OVERNIGHT BEST — CTS PREDICTION EXPERIMENT
+======================================================================
+
+[0s] Loading data...
+  X_cache: (5390, 96)
+  Y_cache: (5390, 3)  (per-placement z-scored: skew, power, WL)
+  df_cache rows: 5390
+  tight_path_cache: 539 entries (20-dim each)
+  Designs: {'aes': np.int64(1040), 'ethmac': np.int64(1900), 'picorv32': np.int64(1220), 'sha256': np.int64(1230)}
+  Unique placements: 539
+
+[0s] Building base features...
+  X29:(5390, 29), X49:(5390, 49), X69:(5390, 64), X_pw_inv:(5390, 44)
+  Y_cache (z-score): (5390, 3), Y_rank: (5390, 3)
+
+======================================================================
+APPROACH 1: BASELINE (X29+tight=49dim, z-score targets for pw/wl)
+======================================================================
+[0s] Skew (X49, rank target, XGB)...
+    sk_XGB_SK: ['0.2357', '0.2223', '0.2472', '0.2480']  mean=0.2383  FAIL
+[6s] Power (X29, z-score, LGB)...
+    pw_LGB_def: ['0.0579', '0.0744', '0.0690', '0.0611']  mean=0.0656  PASS ✓
+[8s] WL (X49, z-score, XGB)...
+    wl_XGB_def: ['0.0842', '0.0894', '0.0920', '0.0777']  mean=0.0858  PASS ✓
+
+  A1 Summary: pw=0.0656, wl=0.0858, sk=0.2383
+  Reference:  pw=0.0656, wl=0.0858, sk=0.2369
+  Delta:      pw=-0.0000, wl=+0.0000, sk=+0.0014
+
+======================================================================
+APPROACH 2: PHYSICAL INVERSE FEATURES (X69 = X49 + 1/cd + log/rank)
+======================================================================
+
+[15s] Grid search: LGB for power with X29+inv (44-dim)...
+    pw n=300,lr=0.03,l=20: ['0.0590', '0.0760', '0.0694', '0.0621']  mean=0.0666  PASS ✓
+    pw n=500,lr=0.02,l=31: ['0.0592', '0.0757', '0.0701', '0.0632']  mean=0.0671  PASS ✓
+    pw n=1000,lr=0.01,l=31: ['0.0583', '0.0736', '0.0703', '0.0623']  mean=0.0661  PASS ✓
+    pw n=2000,lr=0.005,l=31: ['0.0590', '0.0745', '0.0703', '0.0627']  mean=0.0666  PASS ✓
+    pw n=300,lr=0.03,l=40: ['0.0596', '0.0736', '0.0732', '0.0623']  mean=0.0672  PASS ✓
+    pw n=500,lr=0.02,l=50: ['0.0598', '0.0733', '0.0734', '0.0620']  mean=0.0671  PASS ✓
+
+  Best power config: {'n_estimators': 300, 'learning_rate': 0.03, 'num_leaves': 20, 'min_child_samples': 15, 'n_jobs': 4, 'verbose': -1}  -> pw=0.0656
+
+[58s] Grid search: XGB for WL with X69 (64-dim)...
+    wl n=1000,lr=0.01,d=4: ['0.0835', '0.0905', '0.0931', '0.0820']  mean=0.0873  PASS ✓
+    wl n=2000,lr=0.005,d=4: ['0.0831', '0.0918', '0.0931', '0.0818']  mean=0.0875  PASS ✓
+    wl n=1000,lr=0.01,d=6: ['0.0788', '0.0884', '0.0923', '0.0800']  mean=0.0849  PASS ✓
+    wl n=500,lr=0.02,d=4: ['0.0840', '0.0913', '0.0929', '0.0809']  mean=0.0873  PASS ✓
+
+  Best WL config: {'n_estimators': 1000, 'learning_rate': 0.01, 'max_depth': 6, 'min_child_weight': 10, 'subsample': 0.8, 'colsample_bytree': 0.8, 'n_jobs': 4, 'verbosity': 0}  -> wl=0.0849
+
+[106s] A2 best configs per-fold detail...
+    pw_best_A2: ['0.0590', '0.0760', '0.0694', '0.0621']  mean=0.0666  PASS ✓
+    wl_best_A2: ['0.0788', '0.0884', '0.0923', '0.0800']  mean=0.0849  PASS ✓
+    sk_X69_XGB: ['0.2333', '0.2225', '0.2470', '0.2459']  mean=0.2372  FAIL
+
+  A2 Summary: pw=0.0666 (+0.0010), wl=0.0849 (-0.0009), sk=0.2372
+
+======================================================================
+APPROACH 3: CROSS-TASK PHYSICAL CHAIN (WL z-score -> power feature)
+======================================================================
+  rho(power,WL)=0.915 within placement  ->  WL prediction improves power
+
+[143s] Cross-task chain: X69->WL, X_pw_inv+WL_feat->power
+    aes: WL=0.0788, power=0.0585
+    ethmac: WL=0.0884, power=0.0759
+    picorv32: WL=0.0923, power=0.0707
+    sha256: WL=0.0800, power=0.0668
+  WL  mean: 0.0849  ['0.0788', '0.0884', '0.0923', '0.0800']
+  Pow mean: 0.0680  ['0.0585', '0.0759', '0.0707', '0.0668']
+
+[176s] Cross-task chain: X49->WL, X29+WL_feat->power (baseline chain)
+    aes: WL=0.0842, power=0.0607
+    ethmac: WL=0.0894, power=0.0757
+    picorv32: WL=0.0920, power=0.0705
+    sha256: WL=0.0777, power=0.0627
+  WL  mean: 0.0858  ['0.0842', '0.0894', '0.0920', '0.0777']
+  Pow mean: 0.0674  ['0.0607', '0.0757', '0.0705', '0.0627']
+
+  A3 Summary:
+    Chain+inv:  pw=0.0680, wl=0.0849
+    Chain+base: pw=0.0674, wl=0.0858
+
+======================================================================
+APPROACH 4: ISOTONIC POST-PROCESSING (monotone P(cluster_dia))
+======================================================================
+  rho(cd, power)=-0.952 median  ->  enforce decreasing monotonicity
+
+  Power: 0.0681 -> 0.0748  (delta=+0.0068)
+  WL:    0.0855 -> 0.1225  (delta=+0.0370)
+
+  Per-design isotonic effect:
+    aes: pw 0.0590->0.0731 (+0.0141), wl 0.0788->0.1141 (+0.0353)
+    ethmac: pw 0.0760->0.0848 (+0.0088), wl 0.0884->0.1402 (+0.0518)
+    picorv32: pw 0.0694->0.0665 (-0.0029), wl 0.0923->0.1195 (+0.0271)
+    sha256: pw 0.0621->0.0692 (+0.0070), wl 0.0800->0.1053 (+0.0253)
+
+  Chain+isotonic: pw 0.0693->0.0753, wl 0.0855->0.1225
+
+======================================================================
+APPROACH 5: QUANTILE ENSEMBLE + SEED ENSEMBLE
+======================================================================
+
+[193s] 5a: Quantile ensemble for power (X_pw_inv)...
+    aes: qens_pw=0.0579
+    ethmac: qens_pw=0.0782
+    picorv32: qens_pw=0.0687
+    sha256: qens_pw=0.0623
+  Quantile ens power: 0.0668  ['0.0579', '0.0782', '0.0687', '0.0623']
+
+[209s] 5a: Quantile ensemble for WL (X69)...
+    aes: qens_wl=0.0850
+    ethmac: qens_wl=0.0938
+    picorv32: qens_wl=0.0947
+    sha256: qens_wl=0.0788
+  Quantile ens WL: 0.0881  ['0.0850', '0.0938', '0.0947', '0.0788']
+
+[234s] 5b: Seed ensemble power (20 seeds, X_pw_inv)...
+    aes: seed_pw=0.0590
+    ethmac: seed_pw=0.0760
+    picorv32: seed_pw=0.0694
+    sha256: seed_pw=0.0621
+  Seed ens power: 0.0666
+
+[299s] 5b: Seed ensemble WL (20 seeds, X69)...
+    aes: seed_wl=0.0827
+    ethmac: seed_wl=0.0917
+    picorv32: seed_wl=0.0923
+    sha256: seed_wl=0.0824
+  Seed ens WL: 0.0873
+
+[393s] 5b: Seed ensemble power with best config (X_pw_inv)...
+    aes: best_seed_pw=0.0590
+    ethmac: best_seed_pw=0.0760
+    picorv32: best_seed_pw=0.0694
+    sha256: best_seed_pw=0.0621
+  Best seed ens power: 0.0666
+
+[457s] 5b: Seed ensemble WL with best config (X69)...
+    aes: best_seed_wl=0.0788
+    ethmac: best_seed_wl=0.0891
+    picorv32: best_seed_wl=0.0920
+    sha256: best_seed_wl=0.0806
+  Best seed ens WL: 0.0851
+
+======================================================================
+APPROACH 6: SPATIAL GRID FEATURES (8x8 from .pt graph files)
+======================================================================
+[865s] Building 8x8 grid features from .pt files...
+  Found .pt files for 140/539 placements
+  X_grid shape: (5390, 256)
+  X_grid nonzero rows: 1400/5390
+  Grid feature design ID accuracy: 0.679 (threshold=0.50)
+  -> UNSAFE
+
+[873s] LODO: power with X_pw_inv+grid...
+    aes: grid_pw=0.0585
+    ethmac: grid_pw=0.0750
+    picorv32: grid_pw=0.0694
+    sha256: grid_pw=0.0600
+  Grid+inv power: 0.0657  ['0.0585', '0.0750', '0.0694', '0.0600']
+
+[881s] LODO: WL with X69+grid...
+    aes: grid_wl=0.0844
+    ethmac: grid_wl=0.0908
+    picorv32: grid_wl=0.0914
+    sha256: grid_wl=0.0817
+  Grid+inv WL: 0.0871  ['0.0844', '0.0908', '0.0914', '0.0817']
+
+======================================================================
+APPROACH 7: PER-PLACEMENT BETA META-REGRESSION
+======================================================================
+  z_power_i = beta * (1/cd_i - mean(1/cd)) for each placement
+  Fit beta per training placement, meta-regress from X29 features
+
+  beta_pw stats: mean=258.158, std=60.046
+  beta_wl stats: mean=147.881, std=68.846
+  CV(beta_pw) = 0.233  -> Low, meta-regression should work
+  CV(beta_wl) = 0.466  -> High, generalization may fail
+    aes beta_pw: mean=250.368, std=49.426, n=104
+    ethmac beta_pw: mean=250.567, std=57.448, n=190
+    picorv32 beta_pw: mean=267.144, std=56.140, n=122
+    sha256 beta_pw: mean=267.558, std=72.120, n=123
+    aes: beta_pw=0.0776, beta_wl=0.1269
+    ethmac: beta_pw=0.0887, beta_wl=0.1554
+    picorv32: beta_pw=0.0667, beta_wl=0.1290
+    sha256: beta_pw=0.0730, beta_wl=0.1171
+  Beta meta-regression: power=0.0765  ['0.0776', '0.0887', '0.0667', '0.0730']
+  Beta meta-regression: WL   =0.1321  ['0.1269', '0.1554', '0.1290', '0.1171']
+
+======================================================================
+ADDITIONAL: SKEW HYPERPARAMETER SEARCH
+======================================================================
+
+[905s] XGB config search for skew (X49, rank target)...
+    sk XGB n=1000,lr=0.01,d=4: ['0.2333', '0.2227', '0.2470', '0.2468']  mean=0.2374  FAIL
+    sk XGB n=2000,lr=0.005,d=4: ['0.2335', '0.2222', '0.2471', '0.2468']  mean=0.2374  FAIL
+    sk XGB n=1000,lr=0.01,d=6: ['0.2351', '0.2244', '0.2470', '0.2474']  mean=0.2385  FAIL
+    sk XGB n=500,lr=0.02,d=4: ['0.2338', '0.2230', '0.2476', '0.2472']  mean=0.2379  FAIL
+
+[941s] LGB config search for skew (X49, rank target)...
+    sk LGB n=300,lr=0.03,l=20: ['0.2372', '0.2244', '0.2481', '0.2455']  mean=0.2388  FAIL
+    sk LGB n=500,lr=0.02,l=31: ['0.2372', '0.2248', '0.2501', '0.2460']  mean=0.2395  FAIL
+    sk LGB n=1000,lr=0.01,l=31: ['0.2373', '0.2259', '0.2481', '0.2458']  mean=0.2393  FAIL
+    sk LGB n=2000,lr=0.005,l=31: ['0.2388', '0.2255', '0.2480', '0.2464']  mean=0.2397  FAIL
+    sk LGB n=300,lr=0.03,l=40: ['0.2397', '0.2263', '0.2498', '0.2467']  mean=0.2406  FAIL
+    sk LGB n=500,lr=0.02,l=50: ['0.2389', '0.2263', '0.2520', '0.2482']  mean=0.2413  FAIL
+
+[996s] Skew with X69 (XGB best cfg)...
+    sk X69 XGB: ['0.2333', '0.2225', '0.2470', '0.2459']  mean=0.2372  FAIL
+
+  Skew best: XGB {'n_estimators': 300, 'learning_rate': 0.03, 'max_depth': 4, 'min_child_weight': 15, 'subsample': 0.8, 'colsample_bytree': 0.8, 'n_jobs': 4, 'verbosity': 0}  -> sk=0.2372
+  Skew with X69: 0.2372
+
+======================================================================
+APPROACH 8: OPTIMAL ENSEMBLE (combine all OOF predictions)
+======================================================================
+
+  Individual OOF MAEs on all 5390 samples:
+  Source                       power       WL
+  ------------------------------------------
+  A1_X29_LGB                  0.0670 999.0000 ✓
+  A2_n300_l20                 0.0681 999.0000 ✓
+  A2_n500_l31                 0.0684 999.0000 ✓
+  A2_n1000_l31                0.0673 999.0000 ✓
+  A2_n2000_l31                0.0679 999.0000 ✓
+  A2_n300_l40                 0.0682 999.0000 ✓
+  A2_n500_l50                 0.0682 999.0000 ✓
+  A2_best                     0.0681   0.0855 ✓
+  A3_chain_inv                0.0693   0.0855 ✓
+  A3_chain_base               0.0686   0.0863 ✓
+  A4_iso_pw                   0.0748 999.0000 ✓
+  A4_chain_iso_pw             0.0753 999.0000 ✓
+  A5_qens                     0.0685   0.0889 ✓
+  A5_seed                     0.0681   0.0880 ✓
+  A5_best_seed                0.0681   0.0858 ✓
+  A6_grid                     0.0671   0.0876 ✓
+  A7_beta                     0.0780   0.1352 ✓
+  (wl only) A1_X49_XGB            --   0.0863 ✓
+  (wl only) A2_n1000_d4           --   0.0878 ✓
+  (wl only) A2_n2000_d4           --   0.0881 ✓
+  (wl only) A2_n1000_d6           --   0.0855 ✓
+  (wl only) A2_n500_d4            --   0.0879 ✓
+  (wl only) A4_iso_wl             --   0.1225
+  (wl only) A4_chain_iso_wl       --   0.1225
+
+  Best single power: A1_X29_LGB = 0.0670
+  Best single WL:    A2_n1000_d6 = 0.0855
+
+[1001s] 2-source ensemble grid search...
+  Best 2-source power: {'A1_X29_LGB': np.float64(0.6500000000000001), 'A3_chain_inv': np.float64(0.35)}  -> 0.0665
+  Best 2-source WL:    {'A2_n1000_d6': np.float64(0.8000000000000002), 'A5_best_seed': np.float64(0.2)}  -> 0.0853
+
+[1207s] 3-source ensemble grid search (power)...

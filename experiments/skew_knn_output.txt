@@ -1,0 +1,30 @@
+======================================================================
+Skew kNN Density × Knob Interaction Experiment
+======================================================================
+[0s] Computing kNN density features per placement...
+[5s] kNN feats: (5390, 20)
+  knn1_mean range: [0.0036, 0.0139]
+  centroid_p99 range: [0.4571, 0.6866]
+[5s] Feature matrix sizes: X29=(5390, 29), X49=(5390, 49), Xphys=(5390, 36)
+  cd/knn1_mean range: [2.633, 18.494]
+  outlier_ratio range: [1.473, 2.194]
+
+[5s] === SKEW LODO ===
+  X29 LGB: 0.2485/0.2526/0.2798/0.2941  mean=0.2688 
+  X29+kNN LGB: 0.2474/0.2392/0.2710/0.2983  mean=0.2640 
+  X29+kNN XGB_300: 0.2438/0.2358/0.2614/0.2880  mean=0.2572 
+  X49+phys LGB: 0.2406/0.2399/0.2710/0.2932  mean=0.2612 
+  X49+phys XGB_300: 0.2412/0.2377/0.2658/0.2929  mean=0.2594 
+  X49+phys XGB_500: 0.2429/0.2400/0.2740/0.2891  mean=0.2615 
+  kNN+phys only XGB_300: 0.3620/0.3702/0.3288/0.3465  mean=0.3519 
+  X29+phys_rank XGB_300: 0.2502/0.2517/0.2787/0.2896  mean=0.2676 
+
+[75s] === POWER LODO (X29+kNN — check no regression) ===
+  X29 LGB (baseline): 0.0598/0.0740/0.0709/0.0634  mean=0.0670 PASS
+  X29+kNN LGB: 0.0575/0.0753/0.0709/0.0625  mean=0.0665 PASS
+
+[80s] === WL LODO (X29+kNN) ===
+  X29 LGB (baseline): 0.0870/0.0922/0.0934/0.0808  mean=0.0883 PASS
+  X29+kNN LGB: 0.0863/0.1025/0.0909/0.0822  mean=0.0905 PASS
+
+[86s] === DONE ===

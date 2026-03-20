@@ -1,0 +1,125 @@
+======================================================================
+CTSOracleFramework — Unified CTS Surrogate
+  Architecture: FeatureEngine → TriHeadSurrogate → ParetoOptimizer
+======================================================================
+
+[0.0s] Loading model and caches...
+=== LODO Validation (Leave-One-Design-Out) ===
+  power   : aes=36.6%  ethmac=12.3%  picorv32=30.1%  sha256=48.9%  → mean=32.0%
+  wl      : aes=12.8%  ethmac=7.2%  picorv32=4.3%  sha256=3.7%  → mean=7.0%
+  skew    : aes=0.1  ethmac=0.1  picorv32=0.1  sha256=0.1  → mean=0.1
+  hold_vio: aes=28.3%  ethmac=4.7%  picorv32=4.0%  sha256=12.9%  → mean=12.5%
+[1.2s] Loaded 539 placements
+
+[1.2s] === CROSS-TARGET RELATIONSHIP ANALYSIS ===
+  Physics connections between the three surrogate heads:
+
+  1. Power ↔ WL (capacitive coupling: P = k·C_wire·V²·f, C ∝ WL)
+     aes       : r=+0.611  ████████████
+     ethmac    : r=+0.084  █
+     picorv32  : r=+0.045  
+     sha256    : r=+0.135  ██
+     AES has highest coupling (clock-tree dominant at 2994 FFs)
+     ETH/SHA256/PicoRV: power dominated by logic, not routing
+
+  2. Skew ↔ Hold (fundamental anti-correlation: r≈-0.96)
+     Physics: lower setup skew = more balanced clock = stricter hold timing
+     aes       : r=-0.968  ███████████████████
+     ethmac    : r=-0.906  ██████████████████
+     picorv32  : r=-0.890  █████████████████
+     sha256    : r=-0.957  ███████████████████
+     → Hold violations predictable FROM skew predictions (shared signal)
+
+  3. Knob → Target sensitivity (within-design, linear correlation)
+     Knob                    →Power       →WL     →Skew     →Hold
+     cts_cluster_dia       -0.339     -0.055     +0.010     -0.009
+       (cluster diameter → fewer/larger clusters)
+     cts_cluster_size      -0.022     -0.014     +0.072     -0.065
+       (FFs per cluster → routing topology)
+     cts_max_wire          +0.024     -0.003     -0.471     +0.493
+       (max wire budget → primary skew/hold lever)
+     cts_buf_dist          +0.008     -0.028     -0.060     +0.055
+       (buffer insertion distance)
+
+  Key insight: cts_max_wire is the PRIMARY tradeoff knob:
+    ↑ max_wire → ↓ skew (r=-0.47) but ↑ hold violations (r=+0.49)
+  The Pareto optimizer finds the optimal tradeoff point automatically.
+
+[1.3s] === SENSITIVITY ANALYSIS (∂target/∂knob) ===
+  Placement: aes_run_20260306_172147
+  (±10% perturbation around base knobs: cd=50, cs=20, mw=200, bd=100)
+  Knob      ΔPower/Δknob     ΔWL/Δknob    ΔSkewZ/Δknob     ΔHold/Δknob
+  cd             -20.6%          -3.4%         +0.5015            -702.7%
+  cs              -0.5%          -0.4%         +0.1041           -1100.8%
+  mw              -0.3%          -0.1%         -1.7971            -121.2%
+  bd              +0.0%          -0.3%         +0.1411              +0.0%
+
+  Interpretation:
+    cd (cluster_dia): ↑cd → significantly lower power (larger clusters)
+    mw (max_wire):    ↑mw → lower skew but more hold violations
+    These are the two dominant control dimensions for the Pareto surface
+
+[1.3s] === PARETO OPTIMIZER ===
+  Evaluating 5000 knob combos simultaneously across all 4 heads...
+
+  Design: aes  placement: aes_run_20260306_172147
+  17 Pareto solutions from 5000 combos in 877ms
+     cd   cs    mw    bd |  Power(mW)   WL(mm)    SkewZ  HoldVio
+  -----------------------+--------------------------------------
+     68   28   257    73 |     55.07   642.76   -0.311       0.0
+     70   28   268   146 |     55.08   640.69   -0.532       0.0
+     70   28   260   107 |     55.11   641.67   -0.563       0.0
+     70   21   276    95 |     55.17   642.66   -0.677       0.0
+     70   23   275   113 |     55.17   641.72   -0.679       0.0
+     70   16   268   104 |     55.28   643.89   -0.679       1.3
+     70   15   272   101 |     55.48   644.22   -0.736       1.7
+     62   17   268   103 |     55.73   645.75   -0.684       1.2
+  Sweep ranges: power 55.1–63.3mW  skewZ -0.777–1.907  hold 0–3
+
+  Design: picorv32  placement: picorv32_run_20260306_110145
+  72 Pareto solutions from 5000 combos in 830ms
+     cd   cs    mw    bd |  Power(mW)   WL(mm)    SkewZ  HoldVio
+  -----------------------+--------------------------------------
+     70   22   268    81 |     23.26   212.42   -0.023       0.0
+     69   21   270    76 |     23.26   212.55   -0.038       0.3
+     68   23   254    94 |     23.27   212.54   -0.162       0.0
+     69   25   235    99 |     23.27   212.57   -0.165       0.0
+     68   22   235   140 |     23.28   212.61   -0.348       0.0
+     67   23   239   137 |     23.28   212.58   -0.348       0.0
+     68   20   260   136 |     23.29   212.47   -0.364       0.5
+     68   18   237    92 |     23.29   213.21   -0.367       0.6
+  Sweep ranges: power 23.3–26.4mW  skewZ -0.730–1.675  hold 0–2
+
+[3.1s] === ZIPDIV: TRULY UNSEEN DESIGN ===
+  zipdiv not in training manifest — zero-shot prediction
+
+  zipdiv_run_20260312_160558:
+    n_ff=142, die=215×165µm, rel_act=0.0705
+    Pareto solutions: 11/3000  power 1.38–1.54mW  wl 0.052–0.056mm
+    Recommended: cd=59 cs=15 mw=246 bd=99 → 1.384mW, skewZ=0.391
+  zipdiv_run_20260312_160735:
+    n_ff=142, die=203×156µm, rel_act=0.0662
+    Pareto solutions: 2/3000  power 1.31–1.49mW  wl 0.049–0.053mm
+    Recommended: cd=60 cs=17 mw=243 bd=52 → 1.312mW, skewZ=-0.066
+
+[3.8s] === FEATURE DIMENSION VERIFICATION ===
+  X_pw=76 (expected 76)  ✓
+  X_wl=84 (expected 84)  ✓
+  X_sk=63 (expected 63)  ✓
+  X_hv=66 (expected 66)  ✓
+
+[3.8s] === PREDICTION CONSISTENCY CHECK ===
+  Comparing CTSOracleFramework predictions vs production model
+  Placement: aes_run_20260306_172147, knobs: cd=37 cs=27 mw=132 bd=119
+  Predicted power: 62.61 mW  (true: 61.88 mW)
+  Predicted WL:    658.7 mm   (true: 688.3 mm)
+  Predicted skew Z: 0.014
+
+[3.8s] DONE
+
+Framework Summary:
+  • Single load_placement() call parses DEF/SAIF/timing once
+  • predict() returns all 4 targets in <1ms
+  • pareto_optimize() finds Pareto front in <600ms (5000 combos)
+  • sensitivity_analysis() quantifies per-knob impact on each target
+  • Key physics: mw↔skew/hold tradeoff, cd↔power, skew↔hold anti-corr

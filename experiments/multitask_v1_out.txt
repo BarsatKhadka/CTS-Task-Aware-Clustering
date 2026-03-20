@@ -1,0 +1,86 @@
+===========================================================================
+Multi-Task CTS Predictor v1 — Shared Trunk + Task Heads + Tree Blend
+Device: cuda
+===========================================================================
+[0.3s] n=5390, designs=['aes', 'ethmac', 'picorv32', 'sha256']
+[0.3s] Building features...
+  Xb=(5390, 56), Xt=(5390, 18), Xs=(5390, 3), Xg=(5390, 22), Xsk=(5390, 24)
+
+───────────────────────────────────────────────────────────────────────────
+Held: aes
+  [0.8s] Training tree models...
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+  Trees: power=36.8%  WL=24.6%  skew=0.0870
+  [6.4s] Training NN (200 epochs)...
+  NN:    power=556.5%  WL=28.7%  skew=0.1321
+  Blend (oracle α): power=36.8%(α=1.0)  WL=24.6%(α=1.0)  skew=0.0870✓(α=1.0)
+
+───────────────────────────────────────────────────────────────────────────
+Held: ethmac
+  [93.4s] Training tree models...
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+  Trees: power=9.7%  WL=10.6%  skew=0.0815
+  [97.1s] Training NN (200 epochs)...
+  NN:    power=100.0%  WL=43.7%  skew=0.0966
+  Blend (oracle α): power=4.1%(α=0.9)  WL=10.6%(α=1.0)  skew=0.0813✓(α=0.9)
+
+───────────────────────────────────────────────────────────────────────────
+Held: picorv32
+  [152.6s] Training tree models...
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+  Trees: power=25.1%  WL=5.5%  skew=0.0684
+  [156.4s] Training NN (200 epochs)...
+  NN:    power=316.9%  WL=8.0%  skew=0.0787
+  Blend (oracle α): power=25.1%(α=1.0)  WL=4.9%(α=0.7)  skew=0.0681✓(α=0.9)
+
+───────────────────────────────────────────────────────────────────────────
+Held: sha256
+  [229.6s] Training tree models...
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+  Trees: power=54.0%  WL=5.7%  skew=0.0687
+  [233.6s] Training NN (200 epochs)...
+  NN:    power=361.4%  WL=61.5%  skew=0.0866
+  Blend (oracle α): power=54.0%(α=1.0)  WL=5.7%(α=1.0)  skew=0.0687✓(α=1.0)
+
+===========================================================================
+SUMMARY — LODO (4 designs)
+===========================================================================
+
+  Tree only:
+    Power: 31.4%   WL: 11.6%  Skew: 0.0764 ✓
+      aes: pw=36.8%  wl=24.6%  sk=0.0870
+      ethmac: pw=9.7%  wl=10.6%  sk=0.0815
+      picorv32: pw=25.1%  wl=5.5%  sk=0.0684
+      sha256: pw=54.0%  wl=5.7%  sk=0.0687
+
+  NN only:
+    Power: 333.7%   WL: 35.4%  Skew: 0.0985 ✓
+      aes: pw=556.5%  wl=28.7%  sk=0.1321
+      ethmac: pw=100.0%  wl=43.7%  sk=0.0966
+      picorv32: pw=316.9%  wl=8.0%  sk=0.0787
+      sha256: pw=361.4%  wl=61.5%  sk=0.0866
+
+  Oracle blend:
+    Power: 30.0%   WL: 11.4%  Skew: 0.0763 ✓
+      aes: pw=36.8%  wl=24.6%  sk=0.0870
+      ethmac: pw=4.1%  wl=10.6%  sk=0.0813
+      picorv32: pw=25.1%  wl=4.9%  sk=0.0681
+      sha256: pw=54.0%  wl=5.7%  sk=0.0687
+
+  Baseline (synthesis_best):
+    Power: 32.0% zero-shot  WL: 11.0%  Skew: 0.0738 ✓
+    Power: 9.8% K=20
+
+[302.9s] DONE

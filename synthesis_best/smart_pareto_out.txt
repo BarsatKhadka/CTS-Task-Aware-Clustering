@@ -1,0 +1,118 @@
+Loading surrogate model + caches...
+
+======================================================================
+Design: AES   pid: aes_run_20260306_225549
+======================================================================
+  [1/5] Random search 5000 ...
+  [2/5] Random search 500 (same budget as small NSGA) ...
+  [3/5] NSGA-II 5000 evaluations ...
+  [4/5] NSGA-II 500 evaluations ...
+  [5/5] Optuna NSGA-II 500 trials ...
+
+Method                   Evals    Time  |Pareto|     HV(↑)  BestPw(mW)   BestSk(z)  BestHold
+────────────────────────────────────────────────────────────────────────────────────────────
+Random-5k                 5000    6.0s        27  3966.8015      69.255     -0.8963      0.00
+Random-0k                  500    0.2s         9  3896.5964      69.241     -0.9016      0.00
+NSGA-II-5k                5000    2.1s       158  3976.1275      69.151     -0.9111      0.00
+NSGA-II-500                500    0.4s        41  3897.3592      69.151     -0.9145      0.00
+Optuna-NSGA2-500           500    7.1s        81  3821.3081      69.226     -1.0143      0.00
+
+  Improvements over Random-5k baseline:
+    NSGA-II-5k            : HV ++0.2%  BestPw +0.15%  BestSkz +0.0148
+    NSGA-II-500           : HV +-1.8%  BestPw +0.15%  BestSkz +0.0182
+    Optuna-500            : HV +-3.7%  BestPw +0.04%  BestSkz +0.1180
+
+
+  Top-5 Pareto (sorted by power) — Random-5k:
+     Power(mW)    WL(mm)   Skew(z)    Hold
+        69.255  1188.238   -0.8470    0.72
+        69.277  1187.056   -0.8775    0.72
+        69.277  1188.497   -0.8868    0.73
+        69.345  1187.970   -0.8631    0.52
+        69.387  1188.347   -0.6809    0.47
+
+  Top-5 Pareto (sorted by power) — NSGA-II-5k:
+     Power(mW)    WL(mm)   Skew(z)    Hold
+        69.151  1200.101   -0.7682    0.72
+        69.151  1199.136   -0.7525    0.72
+        69.151  1201.517   -0.7946    0.70
+        69.151  1201.283   -0.7789    0.70
+        69.151  1200.767   -0.7711    0.72
+
+  Top-5 Pareto (sorted by power) — Optuna-NSGA2-500:
+     Power(mW)    WL(mm)   Skew(z)    Hold
+        69.226  1200.376   -0.7703    0.53
+        69.243  1201.136   -0.8587    0.50
+        69.243  1200.483   -0.8587    0.52
+        69.277  1198.982   -0.8892    0.50
+        69.277  1198.460   -0.8892    0.52
+
+======================================================================
+Design: PICORV32   pid: picorv32_run_20260306_142754
+======================================================================
+  [1/5] Random search 5000 ...
+  [2/5] Random search 500 (same budget as small NSGA) ...
+  [3/5] NSGA-II 5000 evaluations ...
+  [4/5] NSGA-II 500 evaluations ...
+  [5/5] Optuna NSGA-II 500 trials ...
+
+Method                   Evals    Time  |Pareto|     HV(↑)  BestPw(mW)   BestSk(z)  BestHold
+────────────────────────────────────────────────────────────────────────────────────────────
+Random-5k                 5000    4.4s        35  183.1828      16.881     -0.6409      0.00
+Random-0k                  500    0.1s        15  175.4481      16.881     -0.6274      0.00
+NSGA-II-5k                5000    1.8s        49  173.9387      16.880     -0.5802      0.00
+NSGA-II-500                500    0.3s        19  166.1095      16.880     -0.5634      0.00
+Optuna-NSGA2-500           500    5.4s        50  175.8462      16.881     -0.7219      0.00
+
+  Improvements over Random-5k baseline:
+    NSGA-II-5k            : HV +-5.0%  BestPw +0.01%  BestSkz -0.0607
+    NSGA-II-500           : HV +-9.3%  BestPw +0.01%  BestSkz -0.0775
+    Optuna-500            : HV +-4.0%  BestPw +0.00%  BestSkz +0.0810
+
+
+  Top-5 Pareto (sorted by power) — Random-5k:
+     Power(mW)    WL(mm)   Skew(z)    Hold
+        16.881   293.636   -0.4052    0.37
+        16.883   293.587   -0.4118    0.19
+        16.888   293.243   -0.0835    0.00
+        16.890   293.426   -0.4500    0.21
+        16.891   293.829   -0.2092    0.08
+
+  Top-5 Pareto (sorted by power) — NSGA-II-5k:
+     Power(mW)    WL(mm)   Skew(z)    Hold
+        16.880   295.729   -0.1870    0.18
+        16.880   295.348   -0.1692    0.18
+        16.880   295.128   -0.1746    0.25
+        16.880   295.410   -0.1732    0.17
+        16.880   295.139   -0.1798    0.25
+
+  Top-5 Pareto (sorted by power) — Optuna-NSGA2-500:
+     Power(mW)    WL(mm)   Skew(z)    Hold
+        16.881   296.185   -0.2776    0.37
+        16.888   295.144   -0.2398    0.00
+        16.891   296.048   -0.3022    0.37
+        16.891   296.048   -0.3022    0.37
+        16.891   296.048   -0.3022    0.37
+
+Done.
+
+=== CONVERGENCE STUDY (|Pareto| vs N evaluations) ===
+
+Design      Method     N=100  N=250  N=500  N=1k   N=2k   N=5k   BestPw@5k   BestSk@5k
+AES         Random         6      5      9     17     22     27    69.255      -0.8963
+AES         NSGA-II       41     41     41     50    100    158    69.151      -0.9111
+AES         Bayesian@500                       81                              -1.0143
+
+ETH MAC     Random         7      9     15     24     43     60    93.093      -0.7949
+ETH MAC     NSGA-II       32     32     32     50    100    200    93.076      -0.9596  (+20.7% skew)
+ETH MAC     Bayesian@500                       24                              -0.9214
+
+PicoRV32    Random         6      6     15     16     26     35    16.881      -0.6409
+PicoRV32    NSGA-II       19     19     19     50     83     49    16.880      -0.5802
+PicoRV32    Bayesian@500                       50                              -0.7219  (+12.6% skew)
+
+SHA-256     Random         7      8     13     21     27     38    11.764      -0.7415
+SHA-256     NSGA-II       37     37     37     39     73    120    11.759      -0.9523  (+28.4% skew)
+SHA-256     Bayesian@500                       19                              -0.8123
+
+Wall clock time at N=5000: random ~0.8s, nsga2 ~0.9s (comparable)

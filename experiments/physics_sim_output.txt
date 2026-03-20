@@ -1,0 +1,65 @@
+======================================================================
+Physics-Simulated CTS + Gaussian Kernel LODO
+======================================================================
+[0s] Dataset: 5400 rows
+[0s] X29 shape: (5390, 29)
+[0s] Loading/building FF position cache...
+[0s] Loaded FF position cache: 540/540 valid
+[0s] Loading/building simulation cache...
+[0s] Simulating 5390 (placement, run) pairs...
+  500/5390
+  1000/5390
+  1500/5390
+  2000/5390
+  2500/5390
+  3000/5390
+  3500/5390
+  4000/5390
+  4500/5390
+  5000/5390
+[74s] Saved sim cache: 5390 entries
+[74s] Building simulation feature matrix...
+[74s] X_sim shape: (5390, 21)
+[74s] X_full shape: (5390, 50)
+
+[74s] === SIMULATION ORACLE ANALYSIS ===
+  Direct oracle rank MAE (sim feature directly as predictor):
+  sim_n_clusters            → power_total: oracle_MAE=0.0750  median_rho=0.948
+  sim_sum_hpwl              → wirelength: oracle_MAE=0.1206  median_rho=0.888
+  sim_total_wl              → wirelength: oracle_MAE=0.1098  median_rho=0.903
+  sim_skew_proxy            → skew_setup: oracle_MAE=0.3727  median_rho=-0.030
+
+[75s] === EXP 1: X29 BASELINE (prior best) ===
+  aes: sk=0.2556  pw=0.0592  wl=0.0825
+  ethmac: sk=0.2491  pw=0.0753  wl=0.0916
+  picorv32: sk=0.2723  pw=0.0685  wl=0.0951
+  sha256: sk=0.2864  pw=0.0620  wl=0.0790
+  [X29_baseline] MEAN: sk=0.2658FAIL  pw=0.0662PASS  wl=0.0870PASS
+
+
+[137s] === EXP 2: Xsim ONLY (pure simulation oracle) ===
+  aes: sk=0.3494  pw=0.0583  wl=0.1013
+  ethmac: sk=0.3549  pw=0.0901  wl=0.1157
+  picorv32: sk=0.2991  pw=0.0807  wl=0.1022
+  sha256: sk=0.3303  pw=0.0665  wl=0.0893
+  [Xsim_only] MEAN: sk=0.3334FAIL  pw=0.0739PASS  wl=0.1021FAIL
+
+
+[143s] === EXP 3: X_full = X29 + Xsim (combined) ===
+  aes: sk=0.2547  pw=0.0581  wl=0.0838
+  ethmac: sk=0.2522  pw=0.0792  wl=0.0871
+  picorv32: sk=0.2612  pw=0.0761  wl=0.0896
+  sha256: sk=0.2728  pw=0.0650  wl=0.0746
+  [X29+Xsim] MEAN: sk=0.2602FAIL  pw=0.0696PASS  wl=0.0838PASS
+
+
+[233s] === EXP 4: Minimal (z-knobs + sim ranks only) ===
+  aes: sk=0.2553  pw=0.0603  wl=0.0972
+  ethmac: sk=0.2502  pw=0.0851  wl=0.0998
+  picorv32: sk=0.2678  pw=0.0783  wl=0.1004
+  sha256: sk=0.2813  pw=0.0692  wl=0.0956
+  [minimal_z+simrank] MEAN: sk=0.2636FAIL  pw=0.0732PASS  wl=0.0982PASS
+
+
+[239s] === EXP 5: Gaussian Process (ARD RBF kernel) ===
+  Using z-knobs + sim rank features (11 dims) → GP regression

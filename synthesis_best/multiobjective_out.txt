@@ -1,0 +1,67 @@
+======================================================================
+Multi-Objective CTS Predictor — 4 Targets + Pareto Optimizer
+======================================================================
+[0.1s] n=5390, designs=['aes', 'ethmac', 'picorv32', 'sha256']
+[0.1s] Building power/WL/skew features...
+  X_pw=(5390, 76), X_wl=(5390, 84), X_sk=(5390, 63)
+[0.8s] Building hold_vio features...
+  X_hv=(5390, 66)
+
+[1.2s] === LODO: All 4 Targets ===
+
+      Design |   Power |      WL |     Skew |   HoldVio
+  -----------+---------+---------+----------+----------
+         aes |   36.6% |   12.8% |  0.0859 |     28.3%
+      ethmac |   12.3% |    7.2% |  0.0787 |      4.7%
+    picorv32 |   30.1% |    4.3% |  0.0631 |      4.0%
+      sha256 |   48.9% |    3.7% |  0.0675 |     12.9%
+        Mean |   32.0% |    7.0% |  0.0738 |     12.5%
+
+[40.5s] Training production models on all data...
+  [50.2s] Done
+  Saved → /home/rain/CTS-Task-Aware-Clustering/synthesis_best/saved_models/cts_predictor_4target.pkl (4.6 MB)
+
+[50.4s] === PARETO OPTIMIZER DEMO ===
+  Concept: given one placement, find optimal CTS knobs in milliseconds
+  vs OpenROAD CTS which takes hours for even a fraction of this search
+
+  Placement: aes_run_20260306_172147  (10 actual CTS runs)
+  Actual outcomes (subset of true CTS runs):
+     cd   cs    mw    bd |  Power(mW)   WL(mm)  Skew(ns)  HoldVio
+  -----------------------+---------------------------------------
+     37   27   132   119 |     61.88    688.3    0.7225      1768
+     61   27   274   105 |     55.66    673.8    0.5939       762
+     53   30   271   135 |     57.04    676.8    0.5701      1150
+     36   15   141   105 |     62.15    688.8    0.8232      1766
+     58   17   131    83 |     55.77    677.1    1.0672      1743
+     63   26   238    70 |     55.29    672.4    0.7314       847
+     57   28   213   139 |     56.43    676.0    0.9407       820
+     37   13   191    73 |     61.51    688.6    0.6864      1787
+     48   16   211   104 |     58.61    682.4    0.6770      1709
+     58   29   205   111 |     56.41    676.3    0.7180       686
+
+  Surrogate sweep: 5000 combos in 479ms
+  (OpenROAD CTS runtime: ~166 hours for same search)
+  Pareto-optimal solutions: 22 / 5000
+
+  Top-10 Pareto solutions (sorted by power):
+     cd   cs    mw    bd |  Power(mW)   WL(mm)  Skew(ns)  HoldVio
+  -----------------------+---------------------------------------
+     68   28   272    76 |     55.30    655.5    0.6868       598
+     69   30   239    75 |     55.31    656.0    0.7132       565
+     69   28   263   146 |     55.32    654.3    0.6590       594
+     68   29   257    73 |     55.33    655.8    0.6896       558
+     70   28   252    84 |     55.34    655.5    0.6523       593
+     70   29   268   145 |     55.35    653.7    0.6500       552
+     68   29   191    78 |     55.36    658.3    0.7880       543
+     69   30   178   149 |     55.36    657.4    0.7493       532
+     70   30   197    82 |     55.38    657.4    0.7146       547
+     69   30   194   142 |     55.39    656.8    0.7344       540
+
+  Best power  knob: cd=68 cs=28 mw=272 bd=76 → 55.30mW
+  Best skew   knob: cd=70 cs=14 mw=268 bd=94 → 0.6392ns
+  Best hold   knob: cd=69 cs=30 mw=174 bd=145 → 532 violations
+
+  zipdiv in DEF cache: 0 placements
+
+[51.2s] DONE

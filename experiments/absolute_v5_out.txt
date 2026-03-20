@@ -1,0 +1,120 @@
+=================================================================
+Zero-Shot Absolute Predictor v5 — Ratio Regression
+=================================================================
+Rows: 5390, designs: 4
+Building caches for 539 placements...
+  50/539
+  100/539
+  150/539
+  200/539
+  250/539
+  300/539
+  350/539
+  400/539
+  450/539
+  500/539
+Feature matrix: (5390, 58)
+Power ratio range: exp[-10.18,-9.11] = [3.808e-05,1.110e-04]
+WL ratio range: exp[2.24,3.61] = [9.370,37.117]
+
+=== Normalizer Quality Check ===
+  Power normalizer: n_ff × f_clk × avg_ds
+  WL normalizer: sqrt(n_ff × die_area)
+  aes: mean(power/pw_norm)=8.003e-05  cv_wl=0.241
+  picorv32: mean(power/pw_norm)=8.394e-05  cv_wl=0.097
+  sha256: mean(power/pw_norm)=4.903e-05  cv_wl=0.138
+  ethmac: mean(power/pw_norm)=4.493e-05  cv_wl=0.127
+
+--- Ridge (baseline) ---
+  aes: power_MAPE=58.6%  WL_MAPE=54.0%
+  picorv32: power_MAPE=97.6%  WL_MAPE=67.8%
+  sha256: power_MAPE=543.8%  WL_MAPE=178.6%
+  ethmac: power_MAPE=79.6%  WL_MAPE=71.0%
+  [Ridge] mean → power=194.9%  WL=92.8%
+
+--- LightGBM 200 trees ---
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+  aes: power_MAPE=35.9%  WL_MAPE=27.4%
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+  picorv32: power_MAPE=27.4%  WL_MAPE=5.3%
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+  sha256: power_MAPE=73.9%  WL_MAPE=27.0%
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+  ethmac: power_MAPE=14.8%  WL_MAPE=35.3%
+  [LGB_200] mean → power=38.0%  WL=23.8%
+
+--- LightGBM 500 trees ---
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+  aes: power_MAPE=35.1%  WL_MAPE=28.2%
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+  picorv32: power_MAPE=27.1%  WL_MAPE=5.8%
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+  sha256: power_MAPE=74.5%  WL_MAPE=23.9%
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+  ethmac: power_MAPE=14.4%  WL_MAPE=26.9%
+  [LGB_500] mean → power=37.8%  WL=21.2%
+
+--- XGBoost depth=4 ---
+  aes: power_MAPE=38.4%  WL_MAPE=23.6%
+  picorv32: power_MAPE=28.1%  WL_MAPE=7.7%
+  sha256: power_MAPE=63.7%  WL_MAPE=36.8%
+  ethmac: power_MAPE=18.8%  WL_MAPE=44.9%
+  [XGB_d4] mean → power=37.3%  WL=28.2%
+
+--- Detailed breakdown (LGB_500) ---
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+
+=== aes ===
+  Power: true=[0.0321,0.0820]  pred=[0.0275,0.0511]  MAPE=35.1%
+  WL:    true=[560029,1560540]  pred=[482034,863305]  MAPE=28.2%
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+
+=== picorv32 ===
+  Power: true=[0.0266,0.0462]  pred=[0.0232,0.0299]  MAPE=27.1%
+  WL:    true=[220473,348062]  pred=[225056,321939]  MAPE=5.8%
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+
+=== sha256 ===
+  Power: true=[0.0115,0.0203]  pred=[0.0148,0.0311]  MAPE=74.5%
+  WL:    true=[271606,533127]  pred=[349283,555647]  MAPE=23.9%
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+
+=== ethmac ===
+  Power: true=[0.0626,0.1023]  pred=[0.0737,0.1072]  MAPE=14.4%
+  WL:    true=[932095,2029240]  pred=[1312987,1708695]  MAPE=26.9%

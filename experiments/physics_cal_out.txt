@@ -1,0 +1,41 @@
+Loaded: 5400 rows, 4 designs
+Cache: 540 DEF, 540 SAIF entries
+Physics feature DataFrame: (5400, 21)
+
+=================================================================
+PHYSICS CONSTANT STABILITY ACROSS DESIGNS
+=================================================================
+aes: k_wl=24.857±5.993  k_pw=9.2691e-07±2.3499e-07
+picorv32: k_wl=15.827±1.543  k_pw=3.6770e-06±3.2572e-07
+sha256: k_wl=16.763±2.310  k_pw=4.5063e-07±7.4468e-08
+ethmac: k_wl=12.037±1.523  k_pw=3.1969e-06±3.2363e-07
+
+=================================================================
+PROGRESSIVE CALIBRATION: Adding designs one by one
+Held-out: ethmac
+=================================================================
+Traceback (most recent call last):
+  File "/home/rain/CTS-Task-Aware-Clustering/physics_calibrator.py", line 282, in <module>
+    main()
+  File "/home/rain/CTS-Task-Aware-Clustering/physics_calibrator.py", line 275, in main
+    progressive_calibration_demo(feat_df)
+  File "/home/rain/CTS-Task-Aware-Clustering/physics_calibrator.py", line 244, in progressive_calibration_demo
+    pred_wl = np.exp(m_wl.predict(X_wl_te))
+                     ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/linear_model/_base.py", line 311, in predict
+    return self._decision_function(X)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/linear_model/_base.py", line 290, in _decision_function
+    X = validate_data(self, X, accept_sparse=["csr", "csc", "coo"], reset=False)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py", line 2902, in validate_data
+    out = check_array(X, input_name="X", **check_params)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py", line 1074, in check_array
+    _assert_all_finite(
+  File "/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py", line 133, in _assert_all_finite
+    _assert_all_finite_element_wise(
+  File "/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py", line 182, in _assert_all_finite_element_wise
+    raise ValueError(msg_err)
+ValueError: Input X contains NaN.
+RidgeCV does not accept missing values encoded as NaN natively. For supervised learning, you might want to consider sklearn.ensemble.HistGradientBoostingClassifier and Regressor which accept missing values encoded as NaNs natively. Alternatively, it is possible to preprocess the data, for instance by using an imputer transformer in a pipeline or drop samples with missing values. See https://scikit-learn.org/stable/modules/impute.html You can find a list of all estimators that handle NaN values at the following page: https://scikit-learn.org/stable/modules/impute.html#estimators-that-handle-nan-values

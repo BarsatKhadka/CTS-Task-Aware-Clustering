@@ -1,0 +1,68 @@
+======================================================================
+v20: Power Optimization — Minimize K-shot requirement
+======================================================================
+[0.0s] n=5390
+
+[0.0s] === Strategy A: In-fold rel_act clipping ===
+Mode         |     AES     ETH  PicoRV  SHA256    Mean
+-------------+----------------------------------------
+original     |   36.6%   12.3%   30.1%   48.9%   32.0% ← BEST
+clip         |   36.6%   11.9%   30.1%   70.4%   37.3%
+log          |   36.9%   21.3%   33.3%   55.9%   36.8%
+none         |   36.7%   12.1%   25.2%   56.9%   32.7%
+
+[21.1s] === Strategy A2: Clip percentile sweep ===
+  clip_p 80:   36.6%   13.0%   30.2%   69.1% mean=37.2%
+  clip_p 85:   36.6%   12.2%   30.0%   69.5% mean=37.1%
+  clip_p 90:   36.9%   12.3%   30.3%   69.4% mean=37.2%
+  clip_p 95:   36.6%   11.9%   30.1%   70.4% mean=37.3%
+  clip_p 99:   36.7%   11.5%   28.4%   66.9% mean=35.9%
+  clip_p100:   36.6%   12.3%   30.1%   67.2% mean=36.6%
+
+[50.8s] === Strategy B: Smarter K-shot calibration ===
+  Using best zero-shot features (mode=original)
+  Method                    | K=1      K=3      K=5      K=10
+  original+mean             | 12.6%  10.9%  10.4%  10.0% ← ≤10% at K=20
+  original+median           | 12.6%  10.9%  10.3%  9.8% ← ≤10% at K=10
+  original+mean             | 12.6%  10.9%  10.4%  10.0% ← ≤10% at K=20
+  original+median           | 12.6%  10.9%  10.3%  9.8% ← ≤10% at K=10
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+
+[83.7s] === Strategy C: XGB+LGB ensemble for power ===
+  α=0.0 (XGB): 35.9% 7.1% 26.6% 72.6% mean=35.6%
+  α=0.3 (XGB): 36.1% 8.5% 27.7% 71.9% mean=36.1%
+  α=0.5 (XGB): 36.3% 9.4% 28.4% 71.5% mean=36.4%
+  α=0.7 (XGB): 36.4% 10.4% 29.1% 71.1% mean=36.7%
+  α=1.0 (XGB): 36.6% 11.9% 30.1% 70.4% mean=37.3%
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+
+[100.4s] === FINAL: Best config K-shot table ===
+  aes: K=0→36.4%  K=1→23.0%  K=3→21.3%  K=5→20.4%  K=10→19.9%
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+  ethmac: K=0→10.4%  K=1→5.5%  K=3→4.7%  K=5→4.4%  K=10→4.2%
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+  picorv32: K=0→29.1%  K=1→7.7%  K=3→6.3%  K=5→5.9%  K=10→5.4%
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/sklearn/utils/validation.py:2691: UserWarning: X does not have valid feature names, but LGBMRegressor was fitted with feature names
+  warnings.warn(
+  sha256: K=0→71.1%  K=1→14.6%  K=3→12.0%  K=5→11.0%  K=10→10.3%
+
+  MEAN:
+    K= 0: 36.7%
+    K= 1: 12.7%
+    K= 2: 11.5%
+    K= 3: 11.1%
+    K= 5: 10.4%
+    K=10: 10.0% ← ≤10% TARGET
+    K=20: 9.7% ← ≤10% TARGET
+
+[119.4s] DONE

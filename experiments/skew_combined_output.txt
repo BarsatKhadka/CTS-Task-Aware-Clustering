@@ -1,0 +1,20 @@
+======================================================================
+Skew Combined: X29T + kNN Density
+======================================================================
+[0s] Computing kNN density features...
+[5s] kNN feats built. cd/knn1_mean range: [2.63, 18.49]
+[5s] All features built:
+  X29=29, X29T=49, kNN=20
+  Xphys=36, Xtp_inter=21
+
+[5s] === SKEW LODO (prior best: X29T+inter XGB_300 = 0.2369) ===
+  X29 LGB (control): 0.2485/0.2526/0.2798/0.2941  mean=0.2688 
+  X29T LGB (prior baseline): 0.2536/0.2421/0.2765/0.2829  mean=0.2638 
+  X29T XGB_300 (prior best ~0.237): 0.2573/0.2429/0.2754/0.2844  mean=0.2650 
+  X29T+kNN LGB: 0.2476/0.2374/0.2736/0.2896  mean=0.2621 
+  X29T+kNN XGB_300: 0.2479/0.2354/0.2678/0.2907  mean=0.2604 
+  X29T+phys XGB_300: 0.2404/0.2382/0.2719/0.2873  mean=0.2595 
+  X29T+kNN+phys XGB_300: 0.2380/0.2363/0.2716/0.2905  mean=0.2591 
+  X29T+kNN+phys XGB_500: 0.2419/0.2365/0.2679/0.2865  mean=0.2582 
+  X29T+tpinter XGB_300: 0.2547/0.2476/0.2747/0.2849  mean=0.2655 
+  X29T+tpinter+kNN XGB_300: 0.2494/0.2434/0.2705/0.2934  mean=0.2642 

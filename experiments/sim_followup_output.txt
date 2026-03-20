@@ -1,0 +1,30 @@
+======================================================================
+Simulation Follow-up: Task-Specific Feature Sets
+======================================================================
+[0s] Data loaded: 5390 rows
+[1s] Features: X29=(5390, 29)  Xsim=(5390, 33)  Xsim_geo=(5390, 24)
+[1s] X49=(5390, 49)
+
+[1s] === EXP A: Task-specific features (X29/X29+simgeo/X29+sim) ===
+  aes: sk=0.2536  pw=0.0592  wl=0.0829
+  ethmac: sk=0.2516  pw=0.0753  wl=0.0836
+  picorv32: sk=0.2658  pw=0.0685  wl=0.0894
+  sha256: sk=0.2804  pw=0.0620  wl=0.0741
+  [task_specific] MEAN: sk=0.2628FAIL  pw=0.0662PASS  wl=0.0825PASS
+
+
+[397s] === EXP B: WL focus — X29 vs X29+simgeo vs X29+sim ===
+  aes: sk=0.2530  pw=0.0592  wl=0.0825
+  ethmac: sk=0.2520  pw=0.0753  wl=0.0916
+  picorv32: sk=0.2776  pw=0.0685  wl=0.0951
+  sha256: sk=0.2887  pw=0.0620  wl=0.0790
+  [wl_X29_only] MEAN: sk=0.2678FAIL  pw=0.0662PASS  wl=0.0870PASS
+
+  aes: sk=0.2530  pw=0.0592  wl=0.0829
+  ethmac: sk=0.2520  pw=0.0753  wl=0.0836
+  picorv32: sk=0.2776  pw=0.0685  wl=0.0894
+  sha256: sk=0.2887  pw=0.0620  wl=0.0741
+  [wl_X29+simgeo] MEAN: sk=0.2678FAIL  pw=0.0662PASS  wl=0.0825PASS
+
+  aes: sk=0.2530  pw=0.0592  wl=0.0838
+  ethmac: sk=0.2520  pw=0.0753  wl=0.0857

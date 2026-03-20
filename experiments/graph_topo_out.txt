@@ -1,0 +1,38 @@
+Building graph feature cache for 540 placements...
+/home/rain/CTS-Task-Aware-Clustering/venv/lib/python3.12/site-packages/torch/_utils.py:361: UserWarning: Sparse CSR tensor support is in beta state. If you miss a functionality in the sparse tensor support, please submit a feature request to https://github.com/pytorch/pytorch/issues. (Triggered internally at /pytorch/aten/src/ATen/SparseCsrTensorImpl.cpp:49.)
+  result = torch.sparse_compressed_tensor(
+  350/540, found=94, missing=256
+  450/540, found=121, missing=329
+Graph cache saved: 140 entries, 400 missing PT files
+
+Sample features for aes_run_20260306_173215:
+  num_nodes: 15780
+  n_wire_edges: 85900
+  n_skip_edges: 5595
+  avg_wire_degree: 5.4436
+  max_wire_degree: 170.0000
+  std_wire_degree: 7.2881
+  frac_high_degree: 0.0648
+  avg_skip_degree: 0.3546
+  max_skip_degree: 926.0000
+  frac_skip_connected: 0.1800
+  wire_density: 0.0003
+  skip_density: 0.0000
+  skip_wire_ratio: 0.0651
+  total_area: 199831.6562
+  mean_area: 12.6636
+  std_area: 7.3314
+  max_area: 30.0288
+  n_seq: 2994.0
+  frac_seq: 0.18972182273864746
+  frac_buf_nodes: 0.02680438570678234
+  toggle_p90_z: 0.9594351053237915
+  toggle_std_z: 0.9999683499336243
+  toggle_max_z: 1.0711700916290283
+  cap_mean_z: -1.1797035881500051e-07
+  cap_p90_z: 0.6205480694770813
+  cap_max_z: 6.909276962280273
+  log_num_nodes: 9.6666
+  log_n_wire_edges: 11.3610
+  log_n_skip_edges: 8.6298
+  log_total_area: 12.2052

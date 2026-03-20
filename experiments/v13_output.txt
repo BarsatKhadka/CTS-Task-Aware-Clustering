@@ -1,0 +1,21 @@
+======================================================================
+Zero-Shot Absolute Predictor v13
+  New: MST + Wasserstein + Grid density + Liberty caps + GP regressor
+======================================================================
+Liberty parsed: 416 cells with input caps
+  and2_1: 0.0029579999999999997
+  xor2_1: 0.008716
+  dfxtp_1: 0.0034720000000000003
+  buf_1: 0.002103
+  mux2_1: 0.006843999999999999
+Train: 5390 rows, Test: 20 rows
+Loaded v7 caches: 539 DEF, 539 SAIF, 539 timing
+Parsing 2 new DEF/SAIF/timing...
+X_pw=(5390, 76), X_wl=(5390, 99), samples=5390
+
+--- V13 Feature Distribution Check ---
+  aes/aes_run_20260306_172147: mst/ff=6.1µm  wass=76.8µm  dcap=0.0312pf  dens_cv=0.605
+  aes/aes_run_20260306_172711: mst/ff=5.5µm  wass=75.7µm  dcap=0.0312pf  dens_cv=0.625
+  aes/aes_run_20260306_173215: mst/ff=6.3µm  wass=78.7µm  dcap=0.0316pf  dens_cv=0.553
+  zipdiv/zipdiv_run_20260312_160558: mst/ff=8.7µm  wass=17.6µm  dcap=0.0635pf  dens_cv=0.674
+  zipdiv/zipdiv_run_20260312_160735: mst/ff=8.2µm  wass=14.8µm  dcap=0.0503pf  dens_cv=0.659

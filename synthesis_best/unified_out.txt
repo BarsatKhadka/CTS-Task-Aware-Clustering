@@ -1,0 +1,89 @@
+======================================================================
+CTSSurrogate — Unified CTS Outcome Predictor
+  One call → power + WL + skew + hold_vio predictions
+======================================================================
+
+[0.0s] Loading model and caches...
+[2.9s] 541 placements loaded
+
+LODO validation (Leave-One-Design-Out, 4 training designs):
+  power   : aes=36.6%  ethmac=12.3%  picorv32=30.1%  sha256=48.9%  → mean=32.0%
+  wl      : aes=12.8%  ethmac=7.2%  picorv32=4.3%  sha256=3.7%  → mean=7.0%
+  skew    : aes=0.1  ethmac=0.1  picorv32=0.1  sha256=0.1  → mean=0.1
+  hold_vio: aes=28.3%  ethmac=4.7%  picorv32=4.0%  sha256=12.9%  → mean=12.5%
+
+[2.9s] === SINGLE-CALL PREDICTION DEMO ===
+  Placement: aes_run_20260306_172147
+  Knobs: cd=37 cs=27 mw=132 bd=119
+  CTSPrediction(power=62.606mW  wl=658.69mm  skew=z=0.014  hold=1.2vio)
+  True: power=61.88mW  wl=688.3mm  skew=0.7225ns
+
+[3.0s] === SENSITIVITY ANALYSIS ===
+  ∂(target)/∂(knob) at base knobs cd=50 cs=20 mw=200 bd=100:
+      d_power_pct  d_wl_pct  d_skew_z  d_hold_pct
+knob                                             
+cd        -20.562    -3.423    +0.502    -702.707
+cs         -0.456    -0.441    +0.104   -1100.772
+mw         -0.273    -0.139    -1.797    -121.243
+bd         +0.000    -0.264    +0.141      +0.000
+
+  Key: mw→skew=-1.7 (dominant), cd→power=-0.3 (buffer count)
+
+[3.1s] === PARETO OPTIMIZATION ===
+  aes: 17 Pareto solutions / 5000 combos in 754ms
+     cd   cs    mw    bd   Power(mW)   WL(mm)   SkewZ   Hold
+     68   28   257    73      55.066  642.764  -0.311    0.0
+     70   28   268   146      55.084  640.686  -0.532    0.0
+     70   28   260   107      55.114  641.667  -0.563    0.0
+     70   21   276    95      55.171  642.663  -0.677    0.0
+     70   23   275   113      55.171  641.722  -0.679    0.0
+
+  picorv32: 75 Pareto solutions / 5000 combos in 723ms
+     cd   cs    mw    bd   Power(mW)   WL(mm)   SkewZ   Hold
+     69   21   270    76      15.224  209.800  -0.038    0.3
+     69   23   239    76      15.224  209.972  -0.020    0.0
+     70   22   268    81      15.231  209.677  -0.023    0.0
+     69   20   236    75      15.232  210.215  -0.145    0.3
+     68   23   254    94      15.237  209.796  -0.162    0.0
+
+[4.6s] === ZIPDIV: TRUE ZERO-SHOT EVALUATION ===
+  zipdiv is NOT in training data (4 training designs: aes/ethmac/picorv32/sha256)
+  Ground truth available from experiment_log.csv
+
+  20 rows: {'zipdiv_run_20260312_160558': 10, 'zipdiv_run_20260312_160735': 10}
+  Target ranges: power=2.87–3.19mW  wl=28.8–32.7mm  skew=0.5042–0.5172ns
+
+  Zero-shot evaluation on zipdiv (20 unseen CTS runs):
+  Metric                    Result    Train mean  Notes
+  ------------------------------------------------------------
+  Power MAPE                 54.7%         32.0%  (train mean)
+  WL MAPE                    99.8%          7.0%
+  Skew MAE (z-score)       0.7023          0.074
+  Skew MAE (ns)            0.0040ns            —
+
+  Sample predictions (first 5 rows):
+     cd  cs    mw    bd   True PW(mW)   Pred PW   True WL(mm)   Pred WL   True Sk(ns)   Pred Sk
+     46  26   204    95         3.143     1.450        32.682     0.053        0.5138    0.5119
+     46  30   255    72         3.143     1.450        32.682     0.053        0.5138    0.5133
+     52  20   192   117         2.869     1.411        32.451     0.053        0.5095    0.5104
+     53  19   227    91         3.143     1.410        32.682     0.052        0.5138    0.5105
+     55  17   228   128         3.180     1.402        32.526     0.052        0.5059    0.5098
+
+[4.7s] Pareto optimization on zipdiv (unseen design):
+  14 Pareto-optimal configs from 3000 combos
+     cd  cs    mw    bd   Power(mW)   WL(mm)   SkewZ   Hold
+     64  16   225   102       1.375   0.0518  -0.222    0.1
+     65  15   200   122       1.376   0.0519  -0.069    0.1
+     64  17   174   126       1.376   0.0520   0.021    0.0
+     64  17   202   118       1.376   0.0519  -0.078    0.0
+     65  17   189    86       1.376   0.0520  -0.013    0.0
+     64  16   222   125       1.377   0.0518  -0.155    0.1
+
+[5.0s] DONE
+
+API summary:
+  model = CTSSurrogate.load(model_path)          # load
+  model.add_design(pid, def, saif, timing)       # new design
+  pred  = model.predict(pid, cd, cs, mw, bd)     # one prediction
+  par   = model.optimize(pid, n=5000)            # Pareto sweep
+  sens  = model.sensitivity(pid)                 # knob sensitivities
